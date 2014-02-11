@@ -1,0 +1,10 @@
+Windows 8, x64
+
+Download the windows sources from here: http://zeromq.org/intro:get-the-software (I used 4.0.3).
+
+Open zeromq-4.0.3\builds\msvc\msvc10.sln  (update when prompted)
+Change the build type from Win32 to x64.  
+Right click libzmq -> Properties.  Change "Configuration Type" from "Dynamic Library" to "Static Library".
+Build->Build Solution.
+Now change the build type from Debug to Release and build again.
+
