@@ -3,7 +3,7 @@
 #include <sstream>
 #include <assert.h>
 #include <zmq.h>
-#include "jzmq/jzmq_server.h"
+#include "jzmq/server.h"
 #include "jtil/exceptions/wruntime_error.h"
 
 #define SAFE_DELETE(x) if (x != NULL) { delete x; x = NULL; }
@@ -11,11 +11,11 @@
 
 namespace jzmq {
 
-  JZMQServer::JZMQServer(const std::string& conn_str) : 
-    JZMQConnection(conn_str, Server){
+  Server::Server(const std::string& conn_str) : 
+    Connection(conn_str, ServerType){
   }
 
-  JZMQServer::~JZMQServer() {
+  Server::~Server() {
     if (socket_ != NULL) {
       // A socket might not close correctly on a fatal error condition
       // Don't throw an exception or raise an assertion, but let the user know.
@@ -23,30 +23,30 @@ namespace jzmq {
     }
   }
   
-  void JZMQServer::initConn() {
+  void Server::initConn() {
     if (socket_ != NULL) {
-      throw std::wruntime_error("JZMQServer::initConn() - ERROR: connection "
+      throw std::wruntime_error("Server::initConn() - ERROR: connection "
         "already initialized.");
     }
-    void* context = JZMQConnection::initContext();
+    void* context = Connection::initContext();
     
     socket_ = zmq_socket(context, ZMQ_REP);
     if (socket_ == NULL) {
-      throwErrorMessage("JZMQServer::initConn() - ERROR: "
+      throwErrorMessage("Server::initConn() - ERROR: "
         "Could not create ZMQ_REP socket");
     }
 
     int rc = zmq_bind(socket_, conn_str_.c_str());
     if (rc != 0) {
-      throwErrorMessage("JZMQServer::initConn() - ERROR: "
+      throwErrorMessage("Server::initConn() - ERROR: "
         "Could not bind ZMQ_REP socket");
     }
     num_open_connections_++;
   }
 
-  void JZMQServer::killConn() {
+  void Server::killConn() {
     if (socket_ == NULL) {
-      throw std::wruntime_error("JZMQServer::killConn() - ERROR: "
+      throw std::wruntime_error("Server::killConn() - ERROR: "
         "Socket has not been initialized!");
     }
     zmq_close(socket_);

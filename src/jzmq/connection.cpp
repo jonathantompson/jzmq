@@ -3,7 +3,7 @@
 #include <sstream>
 #include <assert.h>
 #include <zmq.h>
-#include "jzmq/jzmq_connection.h"
+#include "jzmq/connection.h"
 #include "jtil/exceptions/wruntime_error.h"
 
 #define SAFE_DELETE(x) if (x != NULL) { delete x; x = NULL; }
@@ -11,18 +11,18 @@
 
 namespace jzmq {
 
-  void* JZMQConnection::context_ = NULL;
-  std::mutex JZMQConnection::context_lck_;
-  std::atomic<int64_t> JZMQConnection::num_open_connections_ = 0;
+  void* Connection::context_ = NULL;
+  std::mutex Connection::context_lck_;
+  std::atomic<int64_t> Connection::num_open_connections_ = 0;
 
-  JZMQConnection::JZMQConnection(const std::string& conn_str, 
+  Connection::Connection(const std::string& conn_str, 
     const SocketType type) {
     conn_str_ = conn_str;
     type_ = type;
     socket_ = NULL;
   }
 
-  void* JZMQConnection::initContext() {
+  void* Connection::initContext() {
     if (context_ != NULL) {
       // Context has already been initialized
       return context_;
@@ -42,14 +42,14 @@ namespace jzmq {
     return context_;
   }
 
-  void JZMQConnection::throwErrorMessage(const std::string& err_msg) {
+  void Connection::throwErrorMessage(const std::string& err_msg) {
     int rc = zmq_errno();
     std::stringstream ss;
     ss << err_msg << " (zmqerr=" << zmq_strerror(rc) << ")";
     throw std::wruntime_error(ss.str());
   }
 
-  void JZMQConnection::killContext() {
+  void Connection::killContext() {
     if (context_ == NULL || num_open_connections_ > 0) {
       // Context has already been destroyed OR there are still open connections
       return;
@@ -66,10 +66,10 @@ namespace jzmq {
     context_ = NULL;
   }
 
-  int JZMQConnection::receiveData(char* buff, const uint64_t buff_size, 
+  int Connection::receiveData(char* buff, const uint64_t buff_size, 
     const int timout_ms) {
-    if (type_ == Publisher) {
-      throw std::wruntime_error("JZMQConnection::receive() - ERROR: "
+    if (type_ == PublisherType) {
+      throw std::wruntime_error("Connection::receive() - ERROR: "
         "A Publisher is trying to receive data (they can only send data).");
     }
 
@@ -97,10 +97,10 @@ namespace jzmq {
     return 0;
   }
 
-  int JZMQConnection::sendData(char* buff, const uint64_t buff_size, 
+  int Connection::sendData(char* buff, const uint64_t buff_size, 
     const int timout_ms) {
-    if (type_ == Subscriber) {
-      throw std::wruntime_error("JZMQConnection::sendData() - ERROR: "
+    if (type_ == SubscriberType) {
+      throw std::wruntime_error("Connection::sendData() - ERROR: "
         "A Subscriber is trying to send data (they can only receive data).");
     }
     // Poll the socket for an empty queue, with timeout.  If ZMQ_POLLOUT is in 

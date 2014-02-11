@@ -1,5 +1,5 @@
 //
-//  jzmq_client.h
+//  client.h
 //
 //  Created by Jonathan Tompson on 2/10/14.
 //
@@ -12,17 +12,17 @@
 #include <string>
 #include <mutex>
 #include "jtil/math/math_types.h"
-#include "jzmq/jzmq_connection.h"
+#include "jzmq/connection.h"
 
 namespace jzmq {
 
-  // The client class (to be paired with JZMQServer)
-  class JZMQClient : public JZMQConnection {
+  // The Client class (to be paired with Server)
+  class Client : public Connection {
   public:
-    JZMQClient(const std::string& conn_str);
+    Client(const std::string& conn_str);
     virtual void initConn();
     virtual void killConn();
-    virtual ~JZMQClient();
+    virtual ~Client();
   };
 
 };  // namespace jzmq

@@ -9,8 +9,8 @@
 #include "jtil/math/math_types.h"
 #include "jtil/math/math_base.h"
 #include "jtil/threading/thread.h"
-#include "jzmq/jzmq_publisher.h"
-#include "jzmq/jzmq_subscriber.h"
+#include "jzmq/publisher.h"
+#include "jzmq/subscriber.h"
 #include "jtil/clk/clk.h"
 #include "jtil/exceptions/wruntime_error.h"
 #include "jtil/string_util/string_util.h"
@@ -38,7 +38,7 @@ namespace pub_sub_test {
   std::thread subscribers[num_subscribers];
 
   // Publisher side method to send data.
-  bool publishData(JZMQPublisher& publisher, char* buffer) {
+  bool publishData(Publisher& publisher, char* buffer) {
     // Check if any data was recieved
     uint64_t timeout_ms = 1000 * test_time_sec;  // blocking with timeout
 
@@ -59,7 +59,7 @@ namespace pub_sub_test {
 
     try {
       // Start the ZeroMQ Publisher
-      JZMQPublisher publisher("tcp://*:5558");
+      Publisher publisher("tcp://*:5558");
       publisher.initConn();
 
       double t0 = clk.getTime();
@@ -84,7 +84,7 @@ namespace pub_sub_test {
   }
 
   // Subscriber side method to receive data.
-  bool receiveData(JZMQSubscriber& subscriber, char* buffer) {
+  bool receiveData(Subscriber& subscriber, char* buffer) {
     uint64_t timeout_ms = 0;  // Non-blocking
     int bytes_recieved = subscriber.receiveData(buffer, buffer_len-1, 
       timeout_ms);
@@ -109,7 +109,7 @@ namespace pub_sub_test {
 
     try {
       // Start the ZeroMQ Subscriber
-      JZMQSubscriber subscriber("tcp://localhost:5558");
+      Subscriber subscriber("tcp://localhost:5558");
       subscriber.initConn();
 
       double t0 = clk.getTime();

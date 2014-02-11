@@ -51,29 +51,34 @@ namespace jzmq {
   // Pure virtual base class for all our ZMQ classes.
   // Use the child classes to create instances of the JZMQ sockets and call
   // methods in this class to send and receive data.
-  class JZMQConnection {
+  class Connection {
   public:
     typedef enum {
-      Server,
-      Client,
-      Publisher,
-      Subscriber
+      ServerType,
+      ClientType,
+      PublisherType,
+      SubscriberType,
     } SocketType;
 
-    // Initialize a JZMQ instance.  conn_str usage:
-    // JZMQ("tcp://192.168.0.1:5557", Client);  // TCP socket at IP:port
-    // JZMQ("tcp://localhost:5558", Client);    // TCP socket at localhost:port
-    // JZMQ("tcp://*:5558", Server);            // TCP socket at port (server)
-    // JZMQ("inproc://somename", Server);       // An intra-process comm port
-    // JZMQ("ipc:///tmp_dir/", Server);         // An inter-process comm port
-    JZMQConnection(const std::string& conn_str, const SocketType type);
+    // Initialize a Connection instance.  Some examples of conn_str usage:
+    // 1. TCP socket at IP:port
+    // Connection("tcp://192.168.0.1:5557", ClientType);
+    // 2. TCP socket at localhost:port
+    // Connection("tcp://localhost:5558", ClientType);
+    // 3. TCP socket at port (server)
+    // Connection("tcp://*:5558", ServerType);
+    // 4. An intra-process comm port
+    // Connection("inproc://somename", ServerType);
+    // 5. An inter-process comm port
+    // Connection("ipc:///tmp_dir/", ServerType);
+    Connection(const std::string& conn_str, const SocketType type);
 
     // initConn creates the actual connection after a Connection object is made
     virtual void initConn() = 0;
 
     // All connections must be explicitly killed before calling the destructor
     virtual void killConn() = 0;
-    virtual ~JZMQConnection() { }
+    virtual ~Connection() { }
 
     // receiveData is by default blocking until data is received.  It returns 
     // the length of data received to buff in bytes.  Note that the length can 

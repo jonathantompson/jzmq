@@ -16,8 +16,8 @@
 #include "jtil/math/math_types.h"
 #include "jtil/math/math_base.h"
 #include "jtil/threading/thread.h"
-#include "jzmq/jzmq_server.h"
-#include "jzmq/jzmq_client.h"
+#include "jzmq/server.h"
+#include "jzmq/client.h"
 #include "jtil/clk/clk.h"
 #include "jtil/exceptions/wruntime_error.h"
 #include "jtil/string_util/string_util.h"
@@ -48,7 +48,7 @@ namespace ser_cnt_test {
   std::thread clients[num_clients];
 
   // Server side method to recieve and acknowledge requests.
-  bool serviceRequest(JZMQServer& server, char* buffer, const char* response) {
+  bool serviceRequest(Server& server, char* buffer, const char* response) {
     // Check if any data was recieved
     uint64_t timeout_ms = 0;  // Non-blocking
     int bytes_recieved = server.receiveData(buffer, buffer_len-1, timeout_ms);
@@ -75,7 +75,7 @@ namespace ser_cnt_test {
 
     try {
       // Start the ZeroMQ server
-      JZMQServer server("tcp://*:5558");
+      Server server("tcp://*:5558");
       server.initConn();
 
       double t0 = clk.getTime();
@@ -115,7 +115,7 @@ namespace ser_cnt_test {
   }
 
   // Client side method to send and recieve requests.
-  int sendRequest(JZMQClient& client, char* buffer) {
+  int sendRequest(Client& client, char* buffer) {
     uint64_t timeout_ms = 1000 * test_time_sec;  // blocking with timeout
     snprintf(buffer, buffer_len-1, "Hello server");
     int bytes_sent = client.sendData(buffer, buffer_len-1, timeout_ms);
@@ -153,7 +153,7 @@ namespace ser_cnt_test {
 
     try {
       // Start the ZeroMQ client
-      JZMQClient client("tcp://localhost:5558");
+      Client client("tcp://localhost:5558");
       client.initConn();
 
       int server_message;

@@ -1,5 +1,5 @@
 //
-//  jzmq_subscriber.h
+//  subscriber.h
 //
 //  Created by Jonathan Tompson on 2/10/14.
 //
@@ -12,17 +12,17 @@
 #include <string>
 #include <mutex>
 #include "jtil/math/math_types.h"
-#include "jzmq/jzmq_connection.h"
+#include "jzmq/connection.h"
 
 namespace jzmq {
 
-  // The subscriber class (to be paired with JZMQPublisher)
-  class JZMQSubscriber : public JZMQConnection {
+  // The Subscriber class (to be paired with Publisher)
+  class Subscriber : public Connection {
   public:
-    JZMQSubscriber(const std::string& conn_str);
+    Subscriber(const std::string& conn_str);
     virtual void initConn();
     virtual void killConn();
-    virtual ~JZMQSubscriber();
+    virtual ~Subscriber();
   };
 
 };  // namespace jzmq

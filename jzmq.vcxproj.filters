@@ -17,36 +17,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\jzmq\jzmq_client.h">
+    <ClInclude Include="include\jzmq\client.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
-    <ClInclude Include="include\jzmq\jzmq_server.h">
+    <ClInclude Include="include\jzmq\connection.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
-    <ClInclude Include="include\jzmq\jzmq_publisher.h">
+    <ClInclude Include="include\jzmq\publisher.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
-    <ClInclude Include="include\jzmq\jzmq_subscriber.h">
+    <ClInclude Include="include\jzmq\server.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
-    <ClInclude Include="include\jzmq\jzmq_connection.h">
+    <ClInclude Include="include\jzmq\subscriber.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\jzmq\jzmq_client.cpp">
+    <ClCompile Include="src\jzmq\client.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
-    <ClCompile Include="src\jzmq\jzmq_server.cpp">
+    <ClCompile Include="src\jzmq\connection.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
-    <ClCompile Include="src\jzmq\jzmq_subscriber.cpp">
+    <ClCompile Include="src\jzmq\publisher.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
-    <ClCompile Include="src\jzmq\jzmq_publisher.cpp">
+    <ClCompile Include="src\jzmq\server.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
-    <ClCompile Include="src\jzmq\jzmq_connection.cpp">
+    <ClCompile Include="src\jzmq\subscriber.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
   </ItemGroup>

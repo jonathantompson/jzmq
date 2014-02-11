@@ -1,5 +1,5 @@
 //
-//  jzmq_server.h
+//  server.h
 //
 //  Created by Jonathan Tompson on 2/10/14.
 //
@@ -12,22 +12,22 @@
 #include <string>
 #include <mutex>
 #include "jtil/math/math_types.h"
-#include "jzmq/jzmq_connection.h"
+#include "jzmq/connection.h"
 
 namespace jzmq {
 
-  // The server class (to be paired with JZMQClient)
+  // The Server class (to be paired with Client)
   // Note: all communication with this server must be an alternating sequence
   // of 1. recieveData() --> 2. sendData().  If you try and send data in any
   // other order an exception will be thrown.  ZeroMQ does have a mechanism
   // for arbitrary message patterns, however sticking to this one is very
   // robust.
-  class JZMQServer : public JZMQConnection {
+  class Server : public Connection {
   public:
-    JZMQServer(const std::string& conn_str);
+    Server(const std::string& conn_str);
     virtual void initConn();
     virtual void killConn();
-    virtual ~JZMQServer();
+    virtual ~Server();
   };
 
 };  // namespace jzmq
