@@ -9,12 +9,6 @@
 #define SAFE_DELETE(x) if (x != NULL) { delete x; x = NULL; }
 #define SAFE_DELETE_ARR(x) if (x != NULL) { delete[] x; x = NULL; }
 
-#if defined(_WIN32) || defined(WIN32)
-  #ifndef snprintf
-    #define snprintf _snprintf
-  #endif
-#endif
-
 namespace jzmq {
 
   void* JZMQConnection::context_ = NULL;
@@ -52,7 +46,7 @@ namespace jzmq {
   void JZMQConnection::throwErrorMessage(const std::string& err_msg) {
     int rc = zmq_errno();
     std::stringstream ss;
-    ss << err_msg << " (errno=" << rc << ")";
+    ss << err_msg << " (zmqerr=" << zmq_strerror(rc) << ")";
     throw std::wruntime_error(ss.str());
   }
 
@@ -70,14 +64,14 @@ namespace jzmq {
     }
     // Otherwise Kill the context
     zmq_ctx_destroy(context_);
-    context_ == NULL;
+    context_ = NULL;
   }
 
   int JZMQConnection::recieveData(char* buff, const uint64_t buff_size, 
     const bool blocking) {
     const int flags = blocking ? 0 : ZMQ_DONTWAIT;
     int rc = zmq_recv(socket_, buff, buff_size, flags);
-    if (blocking && rc < 0) {
+    if (!blocking && rc < 0) {
       rc = zmq_errno();
       if (rc == EAGAIN) {
         // Normal operation.  Non-blocking was requested and no data was ready.
@@ -90,7 +84,7 @@ namespace jzmq {
       rc = zmq_errno();
     }
     std::stringstream ss;
-    ss << "Error recieving data on ZMQ_REQ Socket.  errno=" << rc;
+    ss << "Error recieving data on ZMQ_REQ Socket.  " << zmq_strerror(rc);
     throw std::wruntime_error(ss.str());
   }
 
@@ -98,7 +92,7 @@ namespace jzmq {
     const bool blocking) {
     const int flags = blocking ? 0 : ZMQ_DONTWAIT;
     int rc = zmq_send(socket_, buff, buff_size, flags);
-    if (blocking && rc < 0) {
+    if (!blocking && rc < 0) {
       rc = zmq_errno();
       if (rc == EAGAIN) {
         // Normal operation.  Non-blocking was requested and message cannot be
@@ -112,7 +106,7 @@ namespace jzmq {
       rc = zmq_errno();
     }
     std::stringstream ss;
-    ss << "Error queuing data on ZMQ_REP Socket.  Error code: " << rc;
+    ss << "Error queuing data on ZMQ_REP Socket.  " << zmq_strerror(rc);
     throw std::wruntime_error(ss.str());
   }
 
@@ -122,7 +116,11 @@ namespace jzmq {
   }
 
   JZMQServer::~JZMQServer() {
-    assert(socket_ == NULL);
+    if (socket_ != NULL) {
+      // A socket might not close correctly on a fatal error condition
+      // Don't throw an exception or raise an assertion, but let the user know.
+      std::cout << "Warning: Socket was not closed!" << std::endl;
+    }
   }
   
   void JZMQServer::initConn() {
@@ -132,14 +130,14 @@ namespace jzmq {
     }
     void* context = JZMQConnection::initContext();
     
-    socket_ = zmq_socket(context, ZMQ_XREP);
+    socket_ = zmq_socket(context, ZMQ_REP);
     if (socket_ == NULL) {
-      throwErrorMessage("Could not create ZMQ_XREP socket");
+      throwErrorMessage("Could not create ZMQ_REP socket");
     }
 
     int rc = zmq_bind(socket_, conn_str_.c_str());
     if (rc != 0) {
-      throwErrorMessage("Could not bind ZMQ_XREQ socket");
+      throwErrorMessage("Could not bind ZMQ_REP socket");
     }
     num_open_connections_++;
   }
@@ -161,8 +159,11 @@ namespace jzmq {
   }
 
   JZMQClient::~JZMQClient() {
-    // You must kill all connections before calling destructor!
-    assert(socket_ == NULL);
+    if (socket_ != NULL) {
+      // A socket might not close correctly on a fatal error condition
+      // Don't throw an exception or raise an assertion, but let the user know.
+      std::cout << "Warning: Socket was not closed!" << std::endl;
+    }
   }
   
   void JZMQClient::initConn() {
@@ -172,14 +173,14 @@ namespace jzmq {
     }
     void* context = JZMQConnection::initContext();
     
-    socket_ = zmq_socket(context, ZMQ_XREQ);
+    socket_ = zmq_socket(context, ZMQ_REQ);
     if (socket_ == NULL) {
-      throwErrorMessage("Could not create ZMQ_XREQ socket");
+      throwErrorMessage("Could not create ZMQ_REQ socket");
     }
 
     int rc = zmq_connect(socket_, conn_str_.c_str());
     if (rc != 0) {
-      throwErrorMessage("Could not connect ZMQ_XREQ socket");
+      throwErrorMessage("Could not connect ZMQ_REQ socket");
     }
     num_open_connections_++;
   }

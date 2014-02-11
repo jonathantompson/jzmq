@@ -79,7 +79,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\jtil\build\$(Platform)\$(Configuration)\;$(ProjectDir)..\lib\WIN\zeromq</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jtil_d.lib;libzmq_d.lib</AdditionalDependencies>
+      <AdditionalDependencies>jtil_d.lib;libzmq_d.lib;ws2_32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/ignore:4006 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
@@ -115,7 +115,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(ProjectDir)..\jtil\build\$(Platform)\$(Configuration)\;$(ProjectDir)..\lib\WIN\zeromq</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jtil.lib;libzmq.lib</AdditionalDependencies>
+      <AdditionalDependencies>jtil.lib;libzmq.lib;ws2_32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalOptions>/ignore:4006 %(AdditionalOptions)</AdditionalOptions>
     </Lib>

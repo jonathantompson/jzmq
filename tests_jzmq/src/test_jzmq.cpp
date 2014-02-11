@@ -19,9 +19,9 @@ int main(int argc, char* argv[]) {
 #if defined(_DEBUG) || defined(DEBUG)
   jtil::debug::EnableMemoryLeakChecks();
   #if defined(WIN32) || defined(_WIN32)
-  jtil::debug::EnableAggressiveMemoryLeakChecks();
+    jtil::debug::EnableAggressiveMemoryLeakChecks();
   #endif
-  // jtil::debug::SetBreakPointOnAlocation(2546);
+  // jtil::debug::SetBreakPointOnAlocation(574);
 #endif
   int ret_val = RUN_TESTS(argc, argv);
 #ifdef _WIN32

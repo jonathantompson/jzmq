@@ -3,17 +3,37 @@
 //
 //  Created by Jonathan Tompson on 2/10/14.
 //
-//  I have created 2 frameworks.  A Server/Client and a Publisher/Subscriber
-//  framework.  The Server client handles arbitrary 2 way communication between
+//  I have created 2 frameworks; a Server/Client and a Publisher/Subscriber
+//  framework.  The Server/Client handles arbitrary 2 way communication between
 //  a single server and a number of clients.  The Publisher/Subscriber
 //  is used for 1 way communcation between a server and a number of clients.
 //
 //  For usage examples see the test code (test_jzmq in this repo).
 //
-//  NOTE: When you receive string data from ØMQ in C, you simply cannot trust 
-//  that it's safely terminated. Every time you read a string, you should 
-//  allocate a new buffer with space for an extra byte, copy the string, and 
-//  terminate it properly with a null.
+//  NOTES:
+//
+//  When you receive string data from ØMQ in C, you simply cannot trust that 
+//  it's safely terminated. Every time you read a string, you should allocate 
+//  a new buffer with space for an extra byte, copy the string, and terminate 
+//  it properly with a null.
+//  
+//  One zeromq context is automaticlly created and shared amongst threads in a 
+//  process.  Connections instances (ie sockets) should be used by a single 
+//  thread.  Methods are not thread safe unless explicitly specified!
+//
+//  For fast message passing protocols use inproc (for threads within a 
+//  process) or ipc (between multiple processes on the same machine).  ipc is
+//  currently only supported on machines that supply UNIX domain sockets.
+//
+//  the server does not have to start first for a connection to be made,
+//  however the client side messages will queue until we run out of space.
+//
+//  ZeroMQ does have mechanisms for recieving arbitrarily long amounts of data 
+//  (zmq_msg_recv), however for this wrapper I assume all message lengths are 
+//  known a-priori and are truncated when they go over this bound. I also do 
+//  not include an API for using the multi-part messages.  All these features 
+//  would be trivial to add (but would complicate this very simple API).
+//
 
 #pragma once
 
@@ -38,11 +58,14 @@ namespace jzmq {
 
     // Initialize a JZMQ instance.  conn_str usage:
     // JZMQ("tcp://192.168.0.1:5557", Client);  // TCP socket at IP:port
-    // JZMQ("tcp://localhost:5558", Server);    // TCP socket at localhost:port
+    // JZMQ("tcp://localhost:5558", Client);    // TCP socket at localhost:port
+    // JZMQ("tcp://*:5558", Server);            // TCP socket at port (server)
+    // JZMQ("inproc://somename", Server);       // An intra-process comm port
+    // JZMQ("ipc:///tmp_dir/", Server);         // An inter-process comm port
     JZMQConnection(const std::string& conn_str, const SocketType type);
 
-    virtual void initConn() = 0;  // NOT thread safe
-    virtual void killConn() = 0;  // NOT thread safe
+    virtual void initConn() = 0;
+    virtual void killConn() = 0;
     virtual ~JZMQConnection() { }
 
     // recieveData is by default blocking until a data is recieved.  Returns 
@@ -50,14 +73,14 @@ namespace jzmq {
     // be greater than the buffer size (in which case the message is truncated 
     // into buff).
     int recieveData(char* buff, const uint64_t buff_size, 
-      const bool blocking = true);  // NOT thread safe
+      const bool blocking = true);
     // sendData will queue the contents of buffer in a blocking fashion by 
     // default.  Note: If sucessful, this does not indicate that the data was
     // sent to the network; just that it was sucessfully queued to be sent.
     // Returns number of bytes sent.  If non-blocking and the message cannot
     // be queued, then sendData will return 0.
     int sendData(char* buff, const uint64_t buff_size, 
-      const bool blocking = true);  // NOT thread safe
+      const bool blocking = true);
 
   protected:
     std::string conn_str_;
@@ -81,6 +104,9 @@ namespace jzmq {
   };
 
   // The server class (to be paired with JZMQClient)
+  // Note: all communication with this server must be an alternating sequence
+  // of 1. recieveData() --> 2. sendData().  If you try and send data in any
+  // other order an exception will be thrown.
   class JZMQServer : public JZMQConnection {
   public:
     JZMQServer(const std::string& conn_str);
