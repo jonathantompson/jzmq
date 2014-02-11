@@ -145,8 +145,6 @@ TEST(JZMQTests, SimplePublisherSubscriber) {
   // Spawn a Publisher thread
   std::thread publisher(pub_sub_test::PublisherThread);
 
-
-
   // Wait for the publisher and clients to finish
   for (uint64_t i = 0; i < pub_sub_test::num_subscribers; i++) {
     pub_sub_test::subscribers[i].join();

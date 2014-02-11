@@ -30,16 +30,16 @@ namespace jzmq {
     }
     void* context = JZMQConnection::initContext();
     
-    socket_ = zmq_socket(context, ZMQ_REP);
+    socket_ = zmq_socket(context, ZMQ_PUB);
     if (socket_ == NULL) {
       throwErrorMessage("JZMQPublisher::initConn() - ERROR: "
-        "Could not create ZMQ_REP socket");
+        "Could not create ZMQ_PUB socket");
     }
 
     int rc = zmq_bind(socket_, conn_str_.c_str());
     if (rc != 0) {
       throwErrorMessage("JZMQPublisher::initConn() - ERROR: "
-        "Could not bind ZMQ_REP socket");
+        "Could not bind ZMQ_PUB socket");
     }
     num_open_connections_++;
   }
