@@ -12,9 +12,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\jzmq\jzmq.h" />
+    <ClInclude Include="include\jzmq\jzmq_client.h" />
+    <ClInclude Include="include\jzmq\jzmq_publisher.h" />
+    <ClInclude Include="include\jzmq\jzmq_server.h" />
+    <ClInclude Include="include\jzmq\jzmq_subscriber.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\jzmq\jzmq.cpp" />
+    <ClCompile Include="src\jzmq\jzmq_client.cpp" />
+    <ClCompile Include="src\jzmq\jzmq_publisher.cpp" />
+    <ClCompile Include="src\jzmq\jzmq_server.cpp" />
+    <ClCompile Include="src\jzmq\jzmq_subscriber.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="COMPILE_INSTRUCTIONS.txt" />

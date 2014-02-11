@@ -107,6 +107,7 @@
     <None Include="convolution_kernel.cl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\test_publisher_subscriber.h" />
     <ClInclude Include="headers\test_server_client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

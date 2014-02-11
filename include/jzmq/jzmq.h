@@ -12,6 +12,10 @@
 //
 //  NOTES:
 //
+//  While ZeroMQ offers a "zero-copy" API, it's not true zero-copy. Rather it's 
+//  "zero-copy till the message gets to the kernel boundary". From that point
+//  on data is copied as with standard TCP.
+//
 //  When you receive string data from ØMQ in C, you simply cannot trust that 
 //  it's safely terminated. Every time you read a string, you should allocate 
 //  a new buffer with space for an extra byte, copy the string, and terminate 
@@ -28,7 +32,7 @@
 //  the server does not have to start first for a connection to be made,
 //  however the client side messages will queue until we run out of space.
 //
-//  ZeroMQ does have mechanisms for recieving arbitrarily long amounts of data 
+//  ZeroMQ does have mechanisms for receiving arbitrarily long amounts of data 
 //  (zmq_msg_recv), however for this wrapper I assume all message lengths are 
 //  known a-priori and are truncated when they go over this bound. I also do 
 //  not include an API for using the multi-part messages.  All these features 
@@ -46,7 +50,7 @@ namespace jzmq {
 
   // Pure virtual base class for all our ZMQ classes.
   // Use the child classes to create instances of the JZMQ sockets and call
-  // methods in this class to send and recieve data.
+  // methods in this class to send and receive data.
   class JZMQConnection {
   public:
     typedef enum {
@@ -64,23 +68,28 @@ namespace jzmq {
     // JZMQ("ipc:///tmp_dir/", Server);         // An inter-process comm port
     JZMQConnection(const std::string& conn_str, const SocketType type);
 
+    // initConn creates the actual connection after a Connection object is made
     virtual void initConn() = 0;
+
+    // All connections must be explicitly killed before calling the destructor
     virtual void killConn() = 0;
     virtual ~JZMQConnection() { }
 
-    // recieveData is by default blocking until a data is recieved.  Returns 
-    // the length of data recieved to buff in bytes.  Note that the length can 
+    // receiveData is by default blocking until data is received.  It returns 
+    // the length of data received to buff in bytes.  Note that the length can 
     // be greater than the buffer size (in which case the message is truncated 
-    // into buff).
-    int recieveData(char* buff, const uint64_t buff_size, 
-      const bool blocking = true);
+    // into buff).  For infinite blocking, set timeout=-1 (non-blocking is 0).
+    int receiveData(char* buff, const uint64_t buff_size, 
+      const int timout_ms = -1);
+
     // sendData will queue the contents of buffer in a blocking fashion by 
     // default.  Note: If sucessful, this does not indicate that the data was
     // sent to the network; just that it was sucessfully queued to be sent.
     // Returns number of bytes sent.  If non-blocking and the message cannot
-    // be queued, then sendData will return 0.
+    // be queued, then sendData will return 0.  For infinite blocking, set 
+    // timeout=-1 (non-blocking is 0).
     int sendData(char* buff, const uint64_t buff_size, 
-      const bool blocking = true);
+      const int timout_ms = -1);
 
   protected:
     std::string conn_str_;
@@ -102,28 +111,5 @@ namespace jzmq {
     static void* context_;
     static std::mutex context_lck_;
   };
-
-  // The server class (to be paired with JZMQClient)
-  // Note: all communication with this server must be an alternating sequence
-  // of 1. recieveData() --> 2. sendData().  If you try and send data in any
-  // other order an exception will be thrown.
-  class JZMQServer : public JZMQConnection {
-  public:
-    JZMQServer(const std::string& conn_str);
-    virtual void initConn();
-    virtual void killConn();
-    virtual ~JZMQServer();
-  };
-
-  // The client class (to be paired with JZMQServer)
-  class JZMQClient : public JZMQConnection {
-  public:
-    JZMQClient(const std::string& conn_str);
-    virtual void initConn();
-    virtual void killConn();
-    virtual ~JZMQClient();
-  };
-
-  // TODO: Write the publisher subscriber model
 
 };  // namespace jzmq

@@ -22,5 +22,8 @@
     <ClInclude Include="headers\test_server_client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\test_publisher_subscriber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

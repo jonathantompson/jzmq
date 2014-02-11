@@ -9,6 +9,7 @@
 #include "test_unit/test_util.h"
 
 #include "test_server_client.h"
+#include "test_publisher_subscriber.h"
 
 #include "jtil/debug_util/debug_util.h"  // Must come last in .cpp with main
 

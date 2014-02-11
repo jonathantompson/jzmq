@@ -15,7 +15,6 @@ namespace jzmq {
   std::mutex JZMQConnection::context_lck_;
   std::atomic<int64_t> JZMQConnection::num_open_connections_ = 0;
 
-  // ******************************** JZMQConn ********************************
   JZMQConnection::JZMQConnection(const std::string& conn_str, 
     const SocketType type) {
     conn_str_ = conn_str;
@@ -67,133 +66,64 @@ namespace jzmq {
     context_ = NULL;
   }
 
-  int JZMQConnection::recieveData(char* buff, const uint64_t buff_size, 
-    const bool blocking) {
-    const int flags = blocking ? 0 : ZMQ_DONTWAIT;
-    int rc = zmq_recv(socket_, buff, buff_size, flags);
-    if (!blocking && rc < 0) {
-      rc = zmq_errno();
-      if (rc == EAGAIN) {
-        // Normal operation.  Non-blocking was requested and no data was ready.
-        return 0;
-      }
-    } else if (rc >= 0) {
-      // A message was recieved
-      return rc;
-    } else {
-      rc = zmq_errno();
+  int JZMQConnection::receiveData(char* buff, const uint64_t buff_size, 
+    const int timout_ms) {
+    if (type_ == Publisher) {
+      throw std::wruntime_error("JZMQConnection::receive() - ERROR: "
+        "A Publisher is trying to receive data (they can only send data).");
     }
-    std::stringstream ss;
-    ss << "Error recieving data on ZMQ_REQ Socket.  " << zmq_strerror(rc);
-    throw std::wruntime_error(ss.str());
+
+    // Poll the socket for a reply, with timeout.  If ZMQ_POLLIN is in the
+    // revent, then we're gaurenteed at least one message may be receive
+    // without blocking.
+    zmq_pollitem_t items [] = {{socket_, 0, ZMQ_POLLIN, 0}};
+    int rc = zmq_poll(items, 1, timout_ms);
+    if (rc == -1) {
+      // Interrupt received
+      return 0;
+    }
+
+    if (items[0].revents & ZMQ_POLLIN) {
+      int rc = zmq_recv(socket_, buff, buff_size, 0);
+      if (rc >= 0) {
+        return rc;
+      } else {
+        rc = zmq_errno();
+      }
+      std::stringstream ss;
+      ss << "Error receiving data on Socket.  " << zmq_strerror(rc);
+      throw std::wruntime_error(ss.str());
+    }
+    return 0;
   }
 
   int JZMQConnection::sendData(char* buff, const uint64_t buff_size, 
-    const bool blocking) {
-    const int flags = blocking ? 0 : ZMQ_DONTWAIT;
-    int rc = zmq_send(socket_, buff, buff_size, flags);
-    if (!blocking && rc < 0) {
-      rc = zmq_errno();
-      if (rc == EAGAIN) {
-        // Normal operation.  Non-blocking was requested and message cannot be
-        // queued.
-        return 0;
+    const int timout_ms) {
+    if (type_ == Subscriber) {
+      throw std::wruntime_error("JZMQConnection::sendData() - ERROR: "
+        "A Subscriber is trying to send data (they can only receive data).");
+    }
+    // Poll the socket for an empty queue, with timeout.  If ZMQ_POLLOUT is in 
+    // the revent, then we're gaurenteed at least one message may be sent
+    // without blocking.
+    zmq_pollitem_t items [] = {{socket_, 0, ZMQ_POLLOUT, 0}};
+    int rc = zmq_poll(items, 1, timout_ms);
+    if (rc == -1) {
+      // Interrupt received
+      return 0;
+    }
+
+    if (items[0].revents & ZMQ_POLLOUT) {
+      int rc = zmq_send(socket_, buff, buff_size, 0);
+      if (rc >= 0) {
+        return rc;
+      } else {
+        rc = zmq_errno();
       }
-    } else if (rc >= 0) {
-      // A message was queued
-      return rc;
-    } else {
-      rc = zmq_errno();
+      std::stringstream ss;
+      ss << "Error sending data on Socket.  " << zmq_strerror(rc);
+      throw std::wruntime_error(ss.str());
     }
-    std::stringstream ss;
-    ss << "Error queuing data on ZMQ_REP Socket.  " << zmq_strerror(rc);
-    throw std::wruntime_error(ss.str());
+    return 0;
   }
-
-  // ******************************* JZMQServer *******************************
-  JZMQServer::JZMQServer(const std::string& conn_str) : 
-    JZMQConnection(conn_str, Server){
-  }
-
-  JZMQServer::~JZMQServer() {
-    if (socket_ != NULL) {
-      // A socket might not close correctly on a fatal error condition
-      // Don't throw an exception or raise an assertion, but let the user know.
-      std::cout << "Warning: Socket was not closed!" << std::endl;
-    }
-  }
-  
-  void JZMQServer::initConn() {
-    if (socket_ != NULL) {
-      throw std::wruntime_error("JZMQServer::initConn() - ERROR: connection "
-        "already initialized.");
-    }
-    void* context = JZMQConnection::initContext();
-    
-    socket_ = zmq_socket(context, ZMQ_REP);
-    if (socket_ == NULL) {
-      throwErrorMessage("Could not create ZMQ_REP socket");
-    }
-
-    int rc = zmq_bind(socket_, conn_str_.c_str());
-    if (rc != 0) {
-      throwErrorMessage("Could not bind ZMQ_REP socket");
-    }
-    num_open_connections_++;
-  }
-
-  void JZMQServer::killConn() {
-    if (socket_ == NULL) {
-      throw std::wruntime_error("JZMQServer::killConn() - ERROR: "
-        "Socket has not been initialized!");
-    }
-    zmq_close(socket_);
-    socket_ = NULL;
-    num_open_connections_--;
-    killContext();
-  }
-
-  // ******************************* JZMQClient *******************************
-  JZMQClient::JZMQClient(const std::string& conn_str) : 
-    JZMQConnection(conn_str, Client){
-  }
-
-  JZMQClient::~JZMQClient() {
-    if (socket_ != NULL) {
-      // A socket might not close correctly on a fatal error condition
-      // Don't throw an exception or raise an assertion, but let the user know.
-      std::cout << "Warning: Socket was not closed!" << std::endl;
-    }
-  }
-  
-  void JZMQClient::initConn() {
-    if (socket_ != NULL) {
-      throw std::wruntime_error("JZMQClient::initConn() - ERROR: connection "
-        "already initialized.");
-    }
-    void* context = JZMQConnection::initContext();
-    
-    socket_ = zmq_socket(context, ZMQ_REQ);
-    if (socket_ == NULL) {
-      throwErrorMessage("Could not create ZMQ_REQ socket");
-    }
-
-    int rc = zmq_connect(socket_, conn_str_.c_str());
-    if (rc != 0) {
-      throwErrorMessage("Could not connect ZMQ_REQ socket");
-    }
-    num_open_connections_++;
-  }
-
-  void JZMQClient::killConn() {
-    if (socket_ == NULL) {
-      throw std::wruntime_error("JZMQServer::killConn() - ERROR: "
-        "Socket has not been initialized!");
-    }
-    zmq_close(socket_);
-    socket_ = NULL;
-    num_open_connections_--;
-    killContext();
-  }
-
 }  // namespace jzmq
