@@ -116,14 +116,15 @@ namespace ser_cnt_test {
 
   // Client side method to send and recieve requests.
   int sendRequest(JZMQClient& client, char* buffer) {
+    uint64_t timeout_ms = 1000 * test_time_sec;  // blocking with timeout
     snprintf(buffer, buffer_len-1, "Hello server");
-    int bytes_sent = client.sendData(buffer, buffer_len-1);
+    int bytes_sent = client.sendData(buffer, buffer_len-1, timeout_ms);
     buffer[0] = '\0';
     if (bytes_sent == 0) {
       return 0;  // No message was sent
     } else {
       // The message was sent to the server so we should get a response
-      int bytes_recieved = client.receiveData(buffer, buffer_len-1);
+      int bytes_recieved = client.receiveData(buffer, buffer_len-1, timeout_ms);
       if (bytes_recieved == 0) {
          std::cout << "Could not get server response!" << std::endl;
          n_errors++;

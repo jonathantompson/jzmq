@@ -19,7 +19,8 @@ namespace jzmq {
     if (socket_ != NULL) {
       // A socket might not close correctly on a fatal error condition
       // Don't throw an exception or raise an assertion, but let the user know.
-      std::cout << "Warning: Socket was not closed!" << std::endl;
+      std::cout << "JZMQClient::~JZMQClient() - Warning: Socket was not "
+        "closed!" << std::endl;
     }
   }
   
