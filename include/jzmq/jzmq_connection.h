@@ -1,5 +1,5 @@
 //
-//  jzmq.h
+//  jzmq_connection.h
 //
 //  Created by Jonathan Tompson on 2/10/14.
 //

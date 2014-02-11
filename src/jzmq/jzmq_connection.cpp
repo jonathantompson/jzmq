@@ -3,7 +3,7 @@
 #include <sstream>
 #include <assert.h>
 #include <zmq.h>
-#include "jzmq/jzmq.h"
+#include "jzmq/jzmq_connection.h"
 #include "jtil/exceptions/wruntime_error.h"
 
 #define SAFE_DELETE(x) if (x != NULL) { delete x; x = NULL; }

@@ -3,7 +3,7 @@
 //
 //  Created by Jonathan Tompson on 2/10/14.
 //
-//  Please see jzmq.h for API documentation.
+//  Please see jzmq_connection.h for API documentation.
 //
 
 #pragma once
@@ -12,7 +12,7 @@
 #include <string>
 #include <mutex>
 #include "jtil/math/math_types.h"
-#include "jzmq/jzmq.h"
+#include "jzmq/jzmq_connection.h"
 
 namespace jzmq {
 

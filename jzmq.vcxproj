@@ -11,15 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\jzmq\jzmq.h" />
     <ClInclude Include="include\jzmq\jzmq_client.h" />
+    <ClInclude Include="include\jzmq\jzmq_connection.h" />
     <ClInclude Include="include\jzmq\jzmq_publisher.h" />
     <ClInclude Include="include\jzmq\jzmq_server.h" />
     <ClInclude Include="include\jzmq\jzmq_subscriber.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\jzmq\jzmq.cpp" />
     <ClCompile Include="src\jzmq\jzmq_client.cpp" />
+    <ClCompile Include="src\jzmq\jzmq_connection.cpp" />
     <ClCompile Include="src\jzmq\jzmq_publisher.cpp" />
     <ClCompile Include="src\jzmq\jzmq_server.cpp" />
     <ClCompile Include="src\jzmq\jzmq_subscriber.cpp" />
@@ -31,7 +31,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{38CF39B1-A062-4B3E-8E7C-7A89F46B8431}</ProjectGuid>
+    <ProjectGuid>{287F2B7F-A92D-4144-B56D-B0A87E5883EE}</ProjectGuid>
     <RootNamespace>jcl</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

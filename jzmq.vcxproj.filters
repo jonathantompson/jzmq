@@ -17,9 +17,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\jzmq\jzmq.h">
-      <Filter>Header Files\jzmq</Filter>
-    </ClInclude>
     <ClInclude Include="include\jzmq\jzmq_client.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
@@ -32,11 +29,11 @@
     <ClInclude Include="include\jzmq\jzmq_subscriber.h">
       <Filter>Header Files\jzmq</Filter>
     </ClInclude>
+    <ClInclude Include="include\jzmq\jzmq_connection.h">
+      <Filter>Header Files\jzmq</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\jzmq\jzmq.cpp">
-      <Filter>Source Files\jzmq</Filter>
-    </ClCompile>
     <ClCompile Include="src\jzmq\jzmq_client.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
@@ -47,6 +44,9 @@
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
     <ClCompile Include="src\jzmq\jzmq_publisher.cpp">
+      <Filter>Source Files\jzmq</Filter>
+    </ClCompile>
+    <ClCompile Include="src\jzmq\jzmq_connection.cpp">
       <Filter>Source Files\jzmq</Filter>
     </ClCompile>
   </ItemGroup>
