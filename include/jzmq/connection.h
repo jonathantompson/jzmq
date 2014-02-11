@@ -115,6 +115,10 @@ namespace jzmq {
   private:
     static void* context_;
     static std::mutex context_lck_;
+
+    // Non-copyable, non-assignable.
+    Connection(Connection&);
+    Connection& operator=(const Connection&);
   };
 
 };  // namespace jzmq

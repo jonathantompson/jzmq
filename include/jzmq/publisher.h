@@ -23,6 +23,11 @@ namespace jzmq {
     virtual void initConn();
     virtual void killConn();
     virtual ~Publisher();
+
+  private:
+    // Non-copyable, non-assignable.
+    Publisher(Publisher&);
+    Publisher& operator=(const Publisher&);
   };
 
 };  // namespace jzmq

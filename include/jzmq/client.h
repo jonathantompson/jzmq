@@ -23,6 +23,11 @@ namespace jzmq {
     virtual void initConn();
     virtual void killConn();
     virtual ~Client();
+
+  private:
+    // Non-copyable, non-assignable.
+    Client(Client&);
+    Client& operator=(const Client&);
   };
 
 };  // namespace jzmq
