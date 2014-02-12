@@ -45,7 +45,7 @@ namespace jzmq {
   void Connection::throwErrorMessage(const std::string& err_msg) {
     int rc = zmq_errno();
     std::stringstream ss;
-    ss << err_msg << " (zmqerr=" << zmq_strerror(rc) << ")";
+    ss << err_msg << " (zmqerr[" << rc << "]=" << zmq_strerror(rc) << ")";
     throw std::wruntime_error(ss.str());
   }
 
@@ -127,7 +127,7 @@ namespace jzmq {
     return 0;
   }
 
-  void Connection::setSendHighWaterMark(const uint64_t n_messages) {
+  void Connection::setSendHighWaterMark(const int n_messages) {
     int rc = zmq_setsockopt(socket_, ZMQ_SNDHWM, &n_messages, 
       sizeof(n_messages));
     if (rc != 0) {
@@ -135,7 +135,7 @@ namespace jzmq {
     }
   }
 
-  void Connection::setReceiveHighWaterMark(const uint64_t n_messages) {
+  void Connection::setReceiveHighWaterMark(const int n_messages) {
     int rc = zmq_setsockopt(socket_, ZMQ_RCVHWM, &n_messages, 
       sizeof(n_messages));
     if (rc != 0) {

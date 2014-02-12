@@ -100,8 +100,8 @@ namespace jzmq {
     // messages zeromq shall queue in memory for any single peer that the 
     // specified socket is communicating with.
     // Default for both send and receive high water marks are 1000
-    void setSendHighWaterMark(const uint64_t n_messages);
-    void setReceiveHighWaterMark(const uint64_t n_messages);
+    void setSendHighWaterMark(const int n_messages);
+    void setReceiveHighWaterMark(const int n_messages);
 
   protected:
     std::string conn_str_;
