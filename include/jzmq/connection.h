@@ -96,6 +96,13 @@ namespace jzmq {
     int sendData(char* buff, const uint64_t buff_size, 
       const int timout_ms = -1);
 
+    // The high water mark is a hard limit on the maximum number of outstanding
+    // messages zeromq shall queue in memory for any single peer that the 
+    // specified socket is communicating with.
+    // Default for both send and receive high water marks are 1000
+    void setSendHighWaterMark(const uint64_t n_messages);
+    void setReceiveHighWaterMark(const uint64_t n_messages);
+
   protected:
     std::string conn_str_;
     SocketType type_;

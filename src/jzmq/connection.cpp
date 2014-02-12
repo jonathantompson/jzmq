@@ -126,4 +126,20 @@ namespace jzmq {
     }
     return 0;
   }
+
+  void Connection::setSendHighWaterMark(const uint64_t n_messages) {
+    int rc = zmq_setsockopt(socket_, ZMQ_SNDHWM, &n_messages, 
+      sizeof(n_messages));
+    if (rc != 0) {
+      throwErrorMessage("Could not set send high water mark");
+    }
+  }
+
+  void Connection::setReceiveHighWaterMark(const uint64_t n_messages) {
+    int rc = zmq_setsockopt(socket_, ZMQ_RCVHWM, &n_messages, 
+      sizeof(n_messages));
+    if (rc != 0) {
+      throwErrorMessage("Could not set receive high water mark");
+    }
+  }
 }  // namespace jzmq
